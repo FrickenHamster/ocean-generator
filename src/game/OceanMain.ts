@@ -5,6 +5,9 @@
 
 class OceanMain
 {
-	
+	constructor()
+	{
+		console.log("wtf");
+	}
 	
 }
