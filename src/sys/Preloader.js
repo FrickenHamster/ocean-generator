@@ -23,8 +23,6 @@ BasicGame.Preloader.prototype = {
 		//	As this is just a Project Template I've not provided these assets, the lines below won't work as the files themselves will 404, they are just an example of use.
 		//	+ lots of other required assets here
 
-		this.load.image('test', 'icons/app_icon_57x57.png');
-		this.load.image('struct_townhall', 'images/struct_townhall.png');
 		
 	},
 

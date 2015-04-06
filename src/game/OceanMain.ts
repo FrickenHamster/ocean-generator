@@ -9,5 +9,4 @@ class OceanMain
 	{
 		console.log("wtf");
 	}
-	
 }
