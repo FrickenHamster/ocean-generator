@@ -2,42 +2,43 @@
 /**
  * Created by Hamster on 3/19/2015.
  */
-	
-	
+
+enum OceanZone
+{
+	Shelf, Slope, Abyss
+}
+
 
 class OceanGen
 {
 	seed:number;
 	rand:HamNoise;
-	
-	
+
+
 	oceanLevel:number;
-	
-	depthPoint:number[];
-	
+
+	depthPoints:number[];
+
 	seedInterval:number;
-	
+
 	constructor(seed:number)
 	{
 		this.seed = seed;
 		this.rand = new HamNoise(seed);
-		
-		this.depthPoint = [];
-		
-		for (var i:number = 0; i < 20; i++)
+
+		this.depthPoints = [];
+
+		for (var i:number = 0; i < 40; i++)
 		{
-			
-			var baseDepth:number = Math.sqrt(i);
-			this.depthPoint[i] = baseDepth;
-			
+
+			var baseDepth:number = Math.sqrt(i) * 60;
+			this.depthPoints[i] = baseDepth;
+
 		}
-		
+
 	}
-	
-	
-	
-	
-	
+
+
 }
 
 
