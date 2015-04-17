@@ -34,10 +34,11 @@ class OceanMain
 		
 		this.ofGraphic.lineStyle(1, 0x444444);
 		this.ofGraphic.moveTo(0, 0);
-		
-		
-		for (var i = 0; i < 40; i++) 
+
+		console.log(this.depthPoints);
+		for (var i = 0; i < this.depthPoints.length; i++) 
 		{
+			console.log(this.depthPoints[i]);
 			this.ofGraphic.lineTo(i * 10, this.depthPoints[i]);
 		}
 		
