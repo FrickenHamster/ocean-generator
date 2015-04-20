@@ -41,7 +41,9 @@ class HamNoise
 	
 	noise(x:number, y:number):number
 	{
-		return ((this.seed * 3557 + (x) * this.prime1 + this.prime2 * (y)) % this.m) / this.m;
+		//return ((this.seed * 3557  + (x) * this.prime1 + this.prime2 * (y)) % this.m) / this.m;
+		
+		return (((this.prime1 * x + this.prime2 * y + this.seed * 3557) ^ 13424) % 9999) / 9999;
 	}
 	
 	

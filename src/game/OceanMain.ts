@@ -19,14 +19,19 @@ class OceanMain
 	
 	ofGraphic:Phaser.Graphics;
 	
+	keyLeft:Phaser.Key;
+	keyRight:Phaser.Key;
+	keyUp:Phaser.Key;
+	keyDown:Phaser.Key;
+	
 	constructor(game:Phaser.Game)
 	{
 		this.game = game;
-		this.gen = new OceanGen(134512);
+		this.gen = new OceanGen(12451);
 		
 		this.depthPoints = this.gen.depthPoints;
 		
-		this.floorSegWidth = 5;
+		this.floorSegWidth = 20;
 		
 		this.game.stage.backgroundColor = '#888888';
 		
@@ -35,17 +40,39 @@ class OceanMain
 		this.ofGraphic.lineStyle(1, 0x444444);
 		this.ofGraphic.moveTo(0, 0);
 
-		console.log(this.depthPoints);
-		for (var i = 0; i < this.depthPoints.length; i++) 
+		for (var i = 0; i < this.depthPoints.length; i++)
 		{
-			console.log(this.depthPoints[i]);
-			this.ofGraphic.lineTo(i * 10, this.depthPoints[i]);
+			this.ofGraphic.lineTo(i * this.floorSegWidth, this.depthPoints[i]);
 		}
+
+		this.viewX = 0;
+		this.viewY = 0;
+		this.keyLeft = game.input.keyboard.addKey(Phaser.Keyboard.A);
+		this.keyRight = game.input.keyboard.addKey(Phaser.Keyboard.D);
+		this.keyDown = game.input.keyboard.addKey(Phaser.Keyboard.S);
+		this.keyUp = game.input.keyboard.addKey(Phaser.Keyboard.W);
 		
 	}
 	
 	public update()
 	{
-		
+		if (this.keyLeft.isDown)
+		{
+			this.viewX -= 5;
+		}
+		if (this.keyRight.isDown)
+		{
+			this.viewX += 5;
+		}
+		if (this.keyUp.isDown)
+		{
+			this.viewY -= 5;
+		}
+		if (this.keyDown.isDown)
+		{
+			this.viewY += 5;
+		}
+		this.ofGraphic.x = -this.viewX;
+		this.ofGraphic.y = -this.viewY;
 	}
 }
