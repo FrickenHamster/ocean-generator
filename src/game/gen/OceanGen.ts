@@ -19,9 +19,8 @@ class OceanGen
 
 	depthPoints:number[];
 	zones:OceanZone[];
+	segmentLength:number = 20;
 	
-	seedInterval:number;
-
 	constructor(seed:number)
 	{
 		this.seed = seed;
@@ -31,32 +30,56 @@ class OceanGen
 		var cZoneEnd:number = 0;
 		var cStartDepth:number = 0;
 		
-		var dd:number = 50 + 50 * this.rand.noise(0, 450);
-		var ed:number = dd / 3 - (dd /10) + (dd * this.rand.noise(0, 451) / 5);
+		var dd:number = Math.round(50 + 50 * this.rand.noise(0, 450));
+		var ed:number = dd * this.segmentLength / 2.5 - (dd /10) + (dd * this.rand.noise(0, 451) / 5);
+
+		var shelf = new OceanZone(ZoneType.Shelf, 0, dd, 0, ed, 8, 10, .62);
 		
-		var shelf = new OceanZone(ZoneType.Shelf, 0, dd, 0, ed, 30, .55);
+		dd = Math.round(20 + 10 * this.rand.noise(1, 450));
+		ed = dd * this.segmentLength * 1.5 - (dd / 10) + (dd * this.rand.noise(0, 451) / 5);
+		var slope = new OceanZone(ZoneType.Slope, shelf.endIndex, shelf.endIndex + dd, shelf.endDepth, ed, 4, 20, .55);
 		
-		this.zones = [shelf];
 		
+		this.zones = [shelf, slope];
 		
 		this.depthPoints = [];
-		this.seedInterval = 16;
 		
 		for (var i = 0; i < this.zones.length; i++)
 		{
 			var zone = this.zones[i];
-			cZoneStart = zone.startIndex;
-			cZoneEnd = zone.endIndex;
+			cZoneStart = Math.round(zone.startIndex);
+			cZoneEnd = Math.round(zone.endIndex);
+			cStartDepth = zone.startDepth;
 			var iter = 0;
+			var seedInterval:number = zone.seedInterval;
 			var rr:number = zone.rough;
-			for (var j:number = cZoneStart; j < cZoneEnd; j += this.seedInterval)
+			switch(zone.zoneType)
 			{
-				this.depthPoints[j] = cStartDepth + iter * this.seedInterval / 2;
-				iter += this.seedInterval;
+				case ZoneType.Abyss:
+					
+					break;
+				case ZoneType.Shelf:
+					for (var j:number = cZoneStart + seedInterval; j < cZoneEnd; j += seedInterval)
+					{
+						this.depthPoints[j] = cStartDepth + iter * this.segmentLength / 2.5 - zone.rough + 2 * zone.rough * this.rand.noise(j, 0);
+						iter += seedInterval;
+					}
+					this.depthPoints[cZoneStart] = zone.startDepth;
+					this.depthPoints[cZoneEnd] = zone.endDepth;
+					break;
+				case ZoneType.Slope:
+					for (var j:number = cZoneStart + seedInterval; j < cZoneEnd; j += seedInterval)
+					{
+						this.depthPoints[j] = cStartDepth + iter * this.segmentLength * 1.5 - zone.rough + 2 * zone.rough * this.rand.noise(j, 0);
+						iter += seedInterval;
+					}
+					this.depthPoints[cZoneStart] = zone.startDepth;
+					this.depthPoints[cZoneEnd] = zone.endDepth;
+					break;
 			}
-			this.depthPoints[cZoneEnd] = 450;
+			
 
-			var ss:number = this.seedInterval;
+			var ss:number = seedInterval;
 			while (ss > 1)
 			{
 				var hh:number = Math.floor(ss / 2);
@@ -79,7 +102,6 @@ class OceanGen
 			}
 			
 		}
-		
 
 	}
 
@@ -94,17 +116,19 @@ class OceanZone
 	endIndex:number;
 	startDepth:number;
 	endDepth:number;
+	seedInterval:number;
 	rough:number;
 	roughConst:number;
 
 
-	constructor(zoneType:ZoneType, startIndex:number, endIndex:number, startDepth:number, endDepth:number, rough:number, roughConst:number)
+	constructor(zoneType:ZoneType, startIndex:number, endIndex:number, startDepth:number, endDepth:number, seedInterval:number, rough:number, roughConst:number)
 	{
 		this.zoneType = zoneType;
 		this.startIndex = startIndex;
 		this.endIndex = endIndex;
 		this.startDepth = startDepth;
 		this.endDepth = endDepth;
+		this.seedInterval = seedInterval;
 		this.rough = rough;
 		this.roughConst = roughConst;
 	}

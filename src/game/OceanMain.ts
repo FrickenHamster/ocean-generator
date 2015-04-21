@@ -33,7 +33,7 @@ class OceanMain
 		
 		this.floorSegWidth = 20;
 		
-		this.game.stage.backgroundColor = '#888888';
+		this.game.stage.backgroundColor = '#9DFFE2';
 		
 		this.ofGraphic = game.add.graphics(0, 0);
 		
