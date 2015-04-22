@@ -18,6 +18,7 @@ class OceanGen
 	oceanLevel:number;
 
 	depthPoints:number[];
+	depthSeeded:boolean[];
 	zones:OceanZone[];
 	segmentLength:number = 20;
 	
@@ -36,17 +37,19 @@ class OceanGen
 		var shelf = new OceanZone(ZoneType.Shelf, 0, dd, 0, ed, 8, 10, .62);
 		
 		dd = Math.round(20 + 10 * this.rand.noise(1, 450));
-		ed = dd * this.segmentLength * 1.5 - (dd / 10) + (dd * this.rand.noise(0, 451) / 5);
+		ed = shelf.endDepth + dd * this.segmentLength * 1.5 - (dd / 10) + (dd * this.rand.noise(0, 451) / 5);
 		var slope = new OceanZone(ZoneType.Slope, shelf.endIndex, shelf.endIndex + dd, shelf.endDepth, ed, 4, 20, .55);
 		
 		
 		this.zones = [shelf, slope];
 		
 		this.depthPoints = [];
+		this.depthSeeded = [];
 		
 		for (var i = 0; i < this.zones.length; i++)
 		{
 			var zone = this.zones[i];
+			console.log(zone);
 			cZoneStart = Math.round(zone.startIndex);
 			cZoneEnd = Math.round(zone.endIndex);
 			cStartDepth = zone.startDepth;
@@ -63,6 +66,11 @@ class OceanGen
 					{
 						this.depthPoints[j] = cStartDepth + iter * this.segmentLength / 2.5 - zone.rough + 2 * zone.rough * this.rand.noise(j, 0);
 						iter += seedInterval;
+						this.depthSeeded[j] = true;
+					}
+					for (var j = cZoneStart; j < cZoneEnd; j++) 
+					{
+						this.depthPoints[j] = cStartDepth + j * this.segmentLength / 2.5 - zone.rough + 2 * zone.rough * this.rand.noise(j, 0);
 					}
 					this.depthPoints[cZoneStart] = zone.startDepth;
 					this.depthPoints[cZoneEnd] = zone.endDepth;
@@ -72,6 +80,14 @@ class OceanGen
 					{
 						this.depthPoints[j] = cStartDepth + iter * this.segmentLength * 1.5 - zone.rough + 2 * zone.rough * this.rand.noise(j, 0);
 						iter += seedInterval;
+						this.depthSeeded[j] = true;
+					}
+					iter = 0;
+					for (var j = cZoneStart; j < cZoneEnd; j++)
+					{
+						console.log(iter, cStartDepth);
+						this.depthPoints[j] = cStartDepth + iter * this.segmentLength * 1.5 - zone.rough + 2 * zone.rough * this.rand.noise(j, 0);
+						iter ++;
 					}
 					this.depthPoints[cZoneStart] = zone.startDepth;
 					this.depthPoints[cZoneEnd] = zone.endDepth;
@@ -96,6 +112,7 @@ class OceanGen
 						nextPoint = this.depthPoints[j + hh];
 					}
 					this.depthPoints[j] = (this.depthPoints[j - hh] + nextPoint) / 2 + this.rand.noise(j, 0) * rr * 2 - rr;
+					this.depthSeeded[j] = false;
 				}
 				rr = rr * Math.pow(2, -zone.roughConst);
 				ss = ss/ 2;

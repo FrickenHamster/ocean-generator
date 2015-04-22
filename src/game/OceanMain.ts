@@ -43,6 +43,11 @@ class OceanMain
 		for (var i = 0; i < this.depthPoints.length; i++)
 		{
 			this.ofGraphic.lineTo(i * this.floorSegWidth, this.depthPoints[i]);
+			if (this.gen.depthSeeded[i])
+			{
+				this.ofGraphic.drawRect(i * this.floorSegWidth, this.depthPoints[i], 5, 5);
+				this.ofGraphic.moveTo(i * this.floorSegWidth, this.depthPoints[i]);
+			}
 		}
 
 		this.viewX = 0;
