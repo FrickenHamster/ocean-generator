@@ -85,7 +85,6 @@ class OceanGen
 					iter = 0;
 					for (var j = cZoneStart; j < cZoneEnd; j++)
 					{
-						console.log(iter, cStartDepth);
 						this.depthPoints[j] = cStartDepth + iter * this.segmentLength * 1.5 - zone.rough + 2 * zone.rough * this.rand.noise(j, 0);
 						iter ++;
 					}
