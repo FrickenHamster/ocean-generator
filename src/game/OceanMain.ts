@@ -57,6 +57,8 @@ class OceanMain
 			}
 		}
 
+		console.log(this.gen.makePartition(0, 100));
+
 		this.viewX = 0;
 		this.viewY = 0;
 		this.keyLeft = game.input.keyboard.addKey(Phaser.Keyboard.A);

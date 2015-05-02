@@ -8,6 +8,46 @@ enum ZoneType
 	Shelf, Slope, Abyss
 }
 
+class OceanZone
+{
+	zoneType:ZoneType;
+	startIndex:number;
+	endIndex:number;
+	startDepth:number;
+	endDepth:number;
+	seedInterval:number;
+	rough:number;
+	roughConst:number;
+
+	constructor(zoneType:ZoneType, startIndex:number, endIndex:number, startDepth:number, endDepth:number, seedInterval:number, rough:number, roughConst:number)
+	{
+		this.zoneType = zoneType;
+		this.startIndex = startIndex;
+		this.endIndex = endIndex;
+		this.startDepth = startDepth;
+		this.endDepth = endDepth;
+		this.seedInterval = seedInterval;
+		this.rough = rough;
+		this.roughConst = roughConst;
+	}
+}
+
+class OceanPartition
+{
+	startIndex:number;
+	endIndex:number;
+	floorDepths:number[];
+
+
+	constructor(startIndex:number, endIndex:number, floorDepths:number[])
+	{
+		this.startIndex = startIndex;
+		this.endIndex = endIndex;
+		this.floorDepths = floorDepths;
+	}
+}
+
+
 
 class OceanGen
 {
@@ -120,37 +160,163 @@ class OceanGen
 		}
 
 	}
-
-
-}
-
-
-class OceanZone
-{
-	zoneType:ZoneType;
-	startIndex:number;
-	endIndex:number;
-	startDepth:number;
-	endDepth:number;
-	seedInterval:number;
-	rough:number;
-	roughConst:number;
-
-
-	constructor(zoneType:ZoneType, startIndex:number, endIndex:number, startDepth:number, endDepth:number, seedInterval:number, rough:number, roughConst:number)
+	
+	public makePartition(startIndex:number, endIndex:number)
 	{
-		this.zoneType = zoneType;
-		this.startIndex = startIndex;
-		this.endIndex = endIndex;
-		this.startDepth = startDepth;
-		this.endDepth = endDepth;
-		this.seedInterval = seedInterval;
-		this.rough = rough;
-		this.roughConst = roughConst;
+		//set start to start of interval
+		var cZone:OceanZone = this.zones[startZoneIndex];
+		var floorDepths:number[] = [];
+		var startZoneIndex:number = -1;
+		var endZoneIndex:number = -1;
+		for (var i = 0; i < this.zones.length; i++)
+		{
+			cZone = this.zones[i];
+			if ( startIndex >= cZone.startIndex)
+			{
+				if (startIndex != -1)
+					startIndex = i;
+				
+			}
+			if (endIndex < cZone.startIndex)
+			{
+				endZoneIndex = i;
+				break;
+			}
+		}
+		
+		var sInd:number = cZone.startIndex + cZone.seedInterval * Math.floor((startIndex - cZone.startIndex) / cZone.seedInterval);
+		var eInd:number = cZone.startIndex + cZone.seedInterval * Math.floor((endIndex - cZone.startIndex) / cZone.seedInterval);
+		var partition:OceanPartition = new OceanPartition(sInd, eInd, []);
+		var cIndex:number = startIndex;
+		
+		for (var i = startZoneIndex; i <= endZoneIndex; i++) 
+		{
+			cZone = this.zones[i];
+			var cZoneStart:number = cZone.startIndex;
+			cIndex = cZone.startIndex;
+			var cZoneEnd:number = cZone.endIndex;
+			var seedInterval:number = cZone.seedInterval;
+			var cStartDepth:number = cZone.startDepth;
+			var cEndDepth:number = cZone.endDepth;
+			var iter:number = 0; // multiple of interval in zone
+			
+			if (i == 0)
+			{
+				cZoneStart = sInd;
+				cIndex = sInd;
+				iter = sInd - cZone.startIndex;
+			}
+			if (i == endZoneIndex)
+			{
+				cZoneEnd = eInd;
+			}
+			
+			switch(cZone.zoneType)
+			{
+				case ZoneType.Abyss:
+
+					break;
+				case ZoneType.Shelf:
+					
+					for (var j:number = cZoneStart; j <= cZoneEnd; j += seedInterval)
+					{
+						cIndex = j - sInd;
+						if (j == cZone.startIndex)
+						{
+							floorDepths[cIndex] = cStartDepth;
+							continue;
+						}
+						if (j == cZone.endIndex)
+						{
+							floorDepths[cIndex] = cEndDepth;
+							continue;
+						}
+						floorDepths[cIndex] = cStartDepth + iter * this.segmentLength / 2.5 - cZone.rough + 2 * cZone.rough * this.rand.noise(j, 0);
+						iter += seedInterval;
+
+						
+						//fill in inner
+						
+						var rr = cZone.rough;
+						var ss:number = seedInterval;
+						while (ss > 1)
+						{
+							var hh:number = Math.floor(ss / 2);
+							for (var j:number = j - seedInterval + hh; j <= j; j += ss)
+							{
+								cIndex = j - sInd;
+								var nextPoint:number;
+								if (j + hh > cZoneEnd)
+								{
+									nextPoint = floorDepths[cZoneEnd - sInd];
+								}
+								else
+								{
+									nextPoint = floorDepths[j + hh - sInd];
+								}
+								floorDepths[cIndex] = (floorDepths[j - hh - sInd] + nextPoint) / 2 + this.rand.noise(j, 0) * rr * 2 - rr;
+							}
+							rr = rr * Math.pow(2, -cZone.roughConst);
+							ss = ss/ 2;
+						}
+					}
+					
+					
+					
+					break;
+				case ZoneType.Slope:
+					for (var j:number = cZoneStart; j < cZoneEnd; j += seedInterval)
+					{
+						cIndex = j - sInd;
+						if (j == cZone.startIndex)
+						{
+							floorDepths[cIndex] = cZone.startDepth;
+							continue;
+						}
+						if (j == cZone.endIndex)
+						{
+							floorDepths[cIndex] = cZone.endDepth;
+							continue;
+						}
+						floorDepths[cIndex] = cStartDepth + iter * this.segmentLength * 1.5 - cZone.rough + 2 * cZone.rough * this.rand.noise(j, 0);
+						iter += seedInterval;
+					}
+					
+			}
+
+			/*var rr = cZone.rough;
+			var ss:number = seedInterval;
+			while (ss > 1)
+			{
+				var hh:number = Math.floor(ss / 2);
+				for (var j:number = cZoneStart + hh; j <= cZoneEnd; j += ss)
+				{
+					var nextPoint:number;
+					if (j + hh > cZoneEnd)
+					{
+						nextPoint = this.depthPoints[cZoneEnd];
+					}
+					else
+					{
+						nextPoint = this.depthPoints[j + hh];
+					}
+					this.depthPoints[j] = (this.depthPoints[j - hh] + nextPoint) / 2 + this.rand.noise(j, 0) * rr * 2 - rr;
+					this.depthSeeded[j] = false;
+				}
+				rr = rr * Math.pow(2, -cZone.roughConst);
+				ss = ss/ 2;
+			}*/
+			
+		}
+		
+		
 	}
 
-
+	
 }
+
+
+
 
 
 
