@@ -18,6 +18,10 @@ class OceanMain
 	screenSegNum:number;
 	depthPoints:number[];
 	
+	oceanPartitions:OceanPartition[];
+	sectionLength:number;
+	partitionNum:number;
+	
 	ofGraphic:Phaser.Graphics;
 	groundGraphic:Phaser.Graphics;
 	oceanGraphics:Phaser.Graphics;
@@ -56,15 +60,42 @@ class OceanMain
 				this.ofGraphic.moveTo(i * this.floorSegWidth, this.depthPoints[i]);
 			}
 		}
+		
+		
+		this.oceanPartitions = [];
+		this.sectionLength = 20;
+		this.partitionNum = 5;
+		
+		for	(var i:number = 0; i < this.partitionNum; i++)
+		{
+			this.oceanPartitions[i] = this.gen.makePartition(this.sectionLength * i, this.sectionLength * (i + 1));
+		}
 
-		console.log(this.gen.makePartition(0, 100));
-
+		var pp:OceanPartition = this.gen.makePartition(10, 40);
+		/*for (var i = 0; i < 30; i++) 
+		{
+			if (pp.floorDepths[i] != this.depthPoints[pp.startIndex + i])
+			{
+				console.log("not equal:" + i + "," + pp.floorDepths[i] + "," + this.depthPoints[pp.startIndex + i]);
+			}
+		}
+		console.log(pp);
+		console.log(pp.floorDepths);
+		console.log(this.depthPoints);*/
+		
 		this.viewX = 0;
 		this.viewY = 0;
 		this.keyLeft = game.input.keyboard.addKey(Phaser.Keyboard.A);
 		this.keyRight = game.input.keyboard.addKey(Phaser.Keyboard.D);
 		this.keyDown = game.input.keyboard.addKey(Phaser.Keyboard.S);
 		this.keyUp = game.input.keyboard.addKey(Phaser.Keyboard.W);
+		
+	}
+	
+	
+	public newPartitions():void
+	{
+		var xx:number = Math.floor(this.viewX % this.floorSegWidth);
 		
 	}
 	
