@@ -19,8 +19,10 @@ class OceanMain
 	depthPoints:number[];
 	
 	oceanPartitions:OceanPartition[];
-	sectionLength:number;
+	partitionGraphics:Phaser.Graphics[];
+	partitionLength:number;
 	partitionNum:number;
+	partitionStart:number;
 	
 	ofGraphic:Phaser.Graphics;
 	groundGraphic:Phaser.Graphics;
@@ -63,12 +65,19 @@ class OceanMain
 		
 		
 		this.oceanPartitions = [];
-		this.sectionLength = 20;
+		this.partitionLength = 20;
 		this.partitionNum = 5;
+		this.partitionGraphics = [];
+		
+		for (var i = 0; i < this.partitionNum; i++) 
+		{
+			this.partitionGraphics[i] = game.add.graphics(0, 0);
+		}
+		
 		
 		for	(var i:number = 0; i < this.partitionNum; i++)
 		{
-			this.oceanPartitions[i] = this.gen.makePartition(this.sectionLength * i, this.sectionLength * (i + 1));
+			this.oceanPartitions[i] = this.gen.makePartition(this.partitionLength * i, this.partitionLength * (i + 1));
 		}
 
 		var pp:OceanPartition = this.gen.makePartition(10, 40);
@@ -95,9 +104,19 @@ class OceanMain
 	
 	public newPartitions():void
 	{
-		var xx:number = Math.floor(this.viewX % this.floorSegWidth);
+		var xx:number = Math.floor(this.viewX / this.floorSegWidth);
+		var xstart:number = Math.floor(Math.max(xx - 2, 0) % this.partitionLength) * this.partitionLength;
 		
+		this.partitionStart = xstart;
+		
+		for (var i:number = xstart; i < xstart + this.partitionNum; i++)
+		{
+			this.oceanPartitions[i] = this.gen.makePartition(i * this.partitionLength, (i + 1) * this.partitionLength);
+		}
 	}
+	
+	
+	
 	
 	public update()
 	{
