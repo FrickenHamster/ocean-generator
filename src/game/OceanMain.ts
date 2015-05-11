@@ -59,8 +59,8 @@ class OceanMain
 			this.ofGraphic.lineTo(i * this.floorSegWidth, this.depthPoints[i]);
 			if (this.gen.depthSeeded[i])
 			{
-				this.ofGraphic.drawRect(i * this.floorSegWidth, this.depthPoints[i], 5, 5);
-				this.ofGraphic.moveTo(i * this.floorSegWidth, this.depthPoints[i]);
+			//	this.ofGraphic.drawRect(i * this.floorSegWidth, this.depthPoints[i], 5, 5);
+			//	this.ofGraphic.moveTo(i * this.floorSegWidth, this.depthPoints[i]);
 			}
 		}
 		
@@ -102,6 +102,8 @@ class OceanMain
 		this.keyDown = game.input.keyboard.addKey(Phaser.Keyboard.S);
 		this.keyUp = game.input.keyboard.addKey(Phaser.Keyboard.W);
 		
+		
+		this.newPartitions();
 	}
 	
 	
@@ -118,11 +120,15 @@ class OceanMain
 			var pp:OceanPartition = this.oceanPartitions[i];
 			var xoff:number = i * this.partitionLength * this.floorSegWidth;
 			var gg:Phaser.Graphics = this.partitionGraphics[i];
+			gg.x = i * this.partitionLength * this.floorSegWidth;
+			gg.lineStyle(1, 0x000000);
 			gg.moveTo(0, 600);
 			gg.lineTo(0, pp.floorDepths[0]);
+			var iter = 0;
 			for (var j:number = pp.startIndex; j < pp.endIndex; j++)
 			{
-				gg.lineTo(j * this.floorSegWidth, pp.floorDepths[j]);
+				gg.lineTo(iter * this.floorSegWidth, pp.floorDepths[iter]);
+				iter ++;
 			}
 		}
 	}
@@ -156,11 +162,11 @@ class OceanMain
 		}
 		this.ofGraphic.x = -this.viewX;
 		this.ofGraphic.y = -this.viewY;
-		
+		this.partitionLayer.x --;
 		
 		if (this.viewX != prevViewX || this.viewY != prevViewY)
 		{
-			this.oceanGraphics.clear();
+			/*this.oceanGraphics.clear();
 			this.oceanGraphics.beginFill(0x0000FF, 0.3);
 			var otop:number = Math.max(0, -this.viewY);
 			this.oceanGraphics.moveTo(0, otop);
@@ -182,7 +188,7 @@ class OceanMain
 			}
 			this.groundGraphic.lineTo(800 + this.floorSegWidth, 600);
 			this.groundGraphic.endFill();
-			this.groundGraphic.x = -this.viewX % this.floorSegWidth;
+			this.groundGraphic.x = -this.viewX % this.floorSegWidth;*/
 		}
 	}
 }
