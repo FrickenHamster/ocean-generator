@@ -19,6 +19,7 @@ class OceanMain
 	depthPoints:number[];
 	
 	oceanPartitions:OceanPartition[];
+	partitionLayer:Phaser.Group;
 	partitionGraphics:Phaser.Graphics[];
 	partitionLength:number;
 	partitionNum:number;
@@ -63,6 +64,7 @@ class OceanMain
 			}
 		}
 		
+		this.partitionLayer = game.add.group();
 		
 		this.oceanPartitions = [];
 		this.partitionLength = 20;
@@ -71,7 +73,8 @@ class OceanMain
 		
 		for (var i = 0; i < this.partitionNum; i++) 
 		{
-			this.partitionGraphics[i] = game.add.graphics(0, 0);
+			this.partitionGraphics[i] = game.add.graphics(i * this.partitionLength * this.floorSegWidth, 0);
+			this.partitionLayer.addChild(this.partitionGraphics[i]);
 		}
 		
 		
@@ -112,10 +115,23 @@ class OceanMain
 		for (var i:number = xstart; i < xstart + this.partitionNum; i++)
 		{
 			this.oceanPartitions[i] = this.gen.makePartition(i * this.partitionLength, (i + 1) * this.partitionLength);
+			var pp:OceanPartition = this.oceanPartitions[i];
+			var xoff:number = i * this.partitionLength * this.floorSegWidth;
+			var gg:Phaser.Graphics = this.partitionGraphics[i];
+			gg.moveTo(0, 600);
+			gg.lineTo(0, pp.floorDepths[0]);
+			for (var j:number = pp.startIndex; j < pp.endIndex; j++)
+			{
+				gg.lineTo(j * this.floorSegWidth, pp.floorDepths[j]);
+			}
 		}
 	}
 	
-	
+	public shiftPartitionRight()
+	{
+		
+		
+	}
 	
 	
 	public update()
