@@ -105,8 +105,6 @@ class OceanGen
 					{
 						
 						this.depthPoints[j] = cStartDepth + iter * this.floorSegWidth / 2.5 - zone.rough + 2 * zone.rough * this.rand.noise(j, 0);
-						if (j == 8)
-							console.log(cZoneStart , this.rand.noise(j, 0) , iter, j, this.depthPoints[j]);
 						iter += seedInterval;
 						this.depthSeeded[j] = true;
 					}
@@ -179,7 +177,7 @@ class OceanGen
 					startZoneIndex = i;
 				
 			}
-			if (endIndex < cZone.startIndex)
+			if (endIndex <= cZone.endIndex)
 			{
 				endZoneIndex = i;
 				break;
@@ -188,9 +186,8 @@ class OceanGen
 		var startZone:OceanZone = this.zones[startZoneIndex];
 		
 		var sInd:number = startZone.startIndex + startZone.seedInterval * Math.floor((startIndex - startZone.startIndex) / startZone.seedInterval);
-		console.log(startZone.startIndex, Math.floor((startIndex - startZone.startIndex)));
-		var eInd:number = cZone.startIndex + cZone.seedInterval * Math.floor((endIndex - cZone.startIndex) / cZone.seedInterval);
-		var partition:OceanPartition = new OceanPartition(sInd, eInd, floorDepths);
+		var eInd:number = cZone.startIndex + cZone.seedInterval * Math.ceil((endIndex - cZone.startIndex) / cZone.seedInterval);
+		var partition:OceanPartition = new OceanPartition(startIndex, endIndex, floorDepths);
 		var cIndex:number = startIndex;
 		
 		for (var i = startZoneIndex; i <= endZoneIndex; i++) 
@@ -204,7 +201,7 @@ class OceanGen
 			var cEndDepth:number = cZone.endDepth;
 			var iter:number = 0; // multiple of interval in zone
 			
-			if (i == 0)
+			if (i == startZoneIndex)
 			{
 				cZoneStart = sInd;
 				cIndex = sInd;
@@ -221,23 +218,23 @@ class OceanGen
 
 					break;
 				case ZoneType.Shelf:
-					
 					for (var j:number = cZoneStart; j <= cZoneEnd; j += seedInterval)
 					{
 						cIndex = j - sInd;
 						if (j == cZone.startIndex)
 						{
 							floorDepths[cIndex] = cStartDepth;
+							iter += seedInterval;
 							continue;
 						}
-						if (j == cZone.endIndex)
+						if (j >= cZone.endIndex)
 						{
 							floorDepths[cIndex] = cEndDepth;
+							iter += seedInterval;
 							continue;
 						}
 						floorDepths[cIndex] = cStartDepth + iter * this.floorSegWidth / 2.5 - cZone.rough + 2 * cZone.rough * this.rand.noise(j, 0);
-						if (j == 8)
-							console.log(cZoneStart , this.rand.noise(j, 0), iter, j, floorDepths[cIndex]);
+						console.log(cIndex, iter, j);
 						iter += seedInterval;
 						//fill in inner
 						
@@ -286,12 +283,14 @@ class OceanGen
 						}
 						floorDepths[cIndex] = cStartDepth + iter * this.floorSegWidth * 1.5 - cZone.rough + 2 * cZone.rough * this.rand.noise(j, 0);
 						iter += seedInterval;
+						
 					}
 					
 			}
 			
 		}
-		
+		var ff = floorDepths.slice(startIndex - sInd);
+		partition.floorDepths = ff;
 		return partition;
 	}
 

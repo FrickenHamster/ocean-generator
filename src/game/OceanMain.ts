@@ -21,9 +21,11 @@ class OceanMain
 	oceanPartitions:OceanPartition[];
 	partitionLayer:Phaser.Group;
 	partitionGraphics:Phaser.Graphics[];
+	curPartitionIndex:number;
 	partitionLength:number;
 	partitionNum:number;
 	partitionStart:number;
+	partitionEnd:number;
 	
 	ofGraphic:Phaser.Graphics;
 	groundGraphic:Phaser.Graphics;
@@ -92,8 +94,8 @@ class OceanMain
 			}
 		}
 		console.log(pp);
-		console.log(pp.floorDepths);
-		console.log(this.depthPoints);*/
+		console.log(pp.floorDepths);*/
+		console.log(this.depthPoints);
 		
 		this.viewX = 0;
 		this.viewY = 0;
@@ -113,29 +115,46 @@ class OceanMain
 		var xstart:number = Math.floor(Math.max(xx - 2, 0) % this.partitionLength) * this.partitionLength;
 		
 		this.partitionStart = xstart;
+		this.partitionEnd = xstart + this.partitionLength * this.partitionNum;
 		
+		var partiter:number = 0;
+		var prevEnd:number = 0;
+		//var i = 0;
 		for (var i:number = xstart; i < xstart + this.partitionNum; i++)
 		{
 			this.oceanPartitions[i] = this.gen.makePartition(i * this.partitionLength, (i + 1) * this.partitionLength);
 			var pp:OceanPartition = this.oceanPartitions[i];
+			
+			
 			var xoff:number = i * this.partitionLength * this.floorSegWidth;
 			var gg:Phaser.Graphics = this.partitionGraphics[i];
-			gg.x = i * this.partitionLength * this.floorSegWidth;
+			gg.clear();
+			gg.x = partiter * this.partitionLength * this.floorSegWidth;
+			console.log(this.partitionLength);
 			gg.lineStyle(1, 0x000000);
 			gg.moveTo(0, 600);
 			gg.lineTo(0, pp.floorDepths[0]);
 			var iter = 0;
-			for (var j:number = pp.startIndex; j < pp.endIndex; j++)
+			console.log(pp);
+			for (var j:number = pp.startIndex; j <= pp.endIndex; j++)
 			{
 				gg.lineTo(iter * this.floorSegWidth, pp.floorDepths[iter]);
 				iter ++;
 			}
+			console.log(iter);
+			partiter++;
 		}
 	}
 	
 	public shiftPartitionRight()
 	{
-		
+		for (var i:number = 0; i < this.partitionNum - 1; i++)
+		{
+			this.oceanPartitions[i] = this.oceanPartitions[i + 1];
+		}
+		this.oceanPartitions[this.partitionNum - 1] = this.gen.makePartition(this.partitionEnd, this.partitionEnd + this.partitionLength);
+		this.partitionStart = this.oceanPartitions[0].startIndex;
+		this.partitionEnd = this.partitionEnd + this.partitionLength;
 		
 	}
 	
@@ -162,7 +181,8 @@ class OceanMain
 		}
 		this.ofGraphic.x = -this.viewX;
 		this.ofGraphic.y = -this.viewY;
-		this.partitionLayer.x --;
+		
+		
 		
 		if (this.viewX != prevViewX || this.viewY != prevViewY)
 		{
